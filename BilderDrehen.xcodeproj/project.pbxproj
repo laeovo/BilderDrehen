@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B329AB99233BE4470067994E /* Koordinatenfinder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B329AB97233BE4470067994E /* Koordinatenfinder.cpp */; };
+		B329AB9C233BE9EA0067994E /* Farbe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B329AB9A233BE9EA0067994E /* Farbe.cpp */; };
+		B329AB9E233BF62C0067994E /* libjpeg.9.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B329AB9D233BF62B0067994E /* libjpeg.9.dylib */; };
 		B3391832233ABCD20079D8E4 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B3391831233ABCD20079D8E4 /* main.cpp */; };
 /* End PBXBuildFile section */
 
@@ -23,8 +26,15 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		B329AB97233BE4470067994E /* Koordinatenfinder.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Koordinatenfinder.cpp; sourceTree = "<group>"; };
+		B329AB98233BE4470067994E /* Koordinatenfinder.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Koordinatenfinder.hpp; sourceTree = "<group>"; };
+		B329AB9A233BE9EA0067994E /* Farbe.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Farbe.cpp; sourceTree = "<group>"; };
+		B329AB9B233BE9EA0067994E /* Farbe.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Farbe.hpp; sourceTree = "<group>"; };
+		B329AB9D233BF62B0067994E /* libjpeg.9.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libjpeg.9.dylib; path = ../../../../usr/local/Cellar/jpeg/9c/lib/libjpeg.9.dylib; sourceTree = "<group>"; };
+		B329ABA0233C040C0067994E /* Binaersuche.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Binaersuche.hpp; sourceTree = "<group>"; };
 		B339182E233ABCD20079D8E4 /* BilderDrehen */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = BilderDrehen; sourceTree = BUILT_PRODUCTS_DIR; };
 		B3391831233ABCD20079D8E4 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		B3391839233AC1A60079D8E4 /* libX11.6.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libX11.6.dylib; path = ../../../../opt/X11/lib/libX11.6.dylib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -32,6 +42,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B329AB9E233BF62C0067994E /* libjpeg.9.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -43,6 +54,7 @@
 			children = (
 				B3391830233ABCD20079D8E4 /* BilderDrehen */,
 				B339182F233ABCD20079D8E4 /* Products */,
+				B3391838233AC1A60079D8E4 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -58,8 +70,22 @@
 			isa = PBXGroup;
 			children = (
 				B3391831233ABCD20079D8E4 /* main.cpp */,
+				B329ABA0233C040C0067994E /* Binaersuche.hpp */,
+				B329AB97233BE4470067994E /* Koordinatenfinder.cpp */,
+				B329AB98233BE4470067994E /* Koordinatenfinder.hpp */,
+				B329AB9A233BE9EA0067994E /* Farbe.cpp */,
+				B329AB9B233BE9EA0067994E /* Farbe.hpp */,
 			);
 			path = BilderDrehen;
+			sourceTree = "<group>";
+		};
+		B3391838233AC1A60079D8E4 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				B329AB9D233BF62B0067994E /* libjpeg.9.dylib */,
+				B3391839233AC1A60079D8E4 /* libX11.6.dylib */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -118,6 +144,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B329AB99233BE4470067994E /* Koordinatenfinder.cpp in Sources */,
+				B329AB9C233BE9EA0067994E /* Farbe.cpp in Sources */,
 				B3391832233ABCD20079D8E4 /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -240,6 +268,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				HEADER_SEARCH_PATHS = (
+					/usr/local/Cellar/cimg/2.7.1/include/,
+					/usr/local/Cellar/jpeg/9c/include,
+				);
+				LIBRARY_SEARCH_PATHS = /usr/local/Cellar/jpeg/9c/lib;
+				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -248,6 +282,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				HEADER_SEARCH_PATHS = (
+					/usr/local/Cellar/cimg/2.7.1/include/,
+					/usr/local/Cellar/jpeg/9c/include,
+				);
+				LIBRARY_SEARCH_PATHS = /usr/local/Cellar/jpeg/9c/lib;
+				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
