@@ -17,65 +17,46 @@ Koordinatenfinder::Koordinatenfinder(const string& dateiname) : bild(dateiname.c
     
     const auto tic{std::chrono::high_resolution_clock::now()};
     
-    this->eckeObenLinks = this->berechneEckeObenLinks();
+    this->berechneEcken();
     
     const auto toc{std::chrono::high_resolution_clock::now()};
     const duration<double, std::milli> ms{toc-tic};
     cout << "Zeit: " << ms.count() << endl;
-    cout << "Obere Kante: " << this->obereKante << endl;
-    cout << "Linke Kante: " << this->linkeKante << endl;
-    cout << "Untere Kante: " << this->untereKante << endl;
-    cout << "Rechte Kante: " << this->rechteKante << endl;
-    cout << "Referenzecke: (" << this->referenzEcke.first << ", " << this->referenzEcke.second << ")" << endl;
     
-    this->eckeObenRechts = this->berechneEckeObenRechts();
-    this->eckeUntenLinks = this->berechneEckeUntenLinks();
-    this->eckeUntenRechts = this->berechneEckeUntenRechts();
+    cout << "Ecke oben links: (" << this->eckeObenLinks.first << ", " << this->eckeObenLinks.second << ")" << endl;
+    cout << "Ecke unten links: (" << this->eckeUntenLinks.first << ", " << this->eckeUntenLinks.second << ")" << endl;
+    cout << "Ecke unten rechts: (" << this->eckeUntenRechts.first << ", " << this->eckeUntenRechts.second << ")" << endl;
+    cout << "Ecke oben rechts: (" << this->eckeObenRechts.first << ", " << this->eckeObenRechts.second << ")" << endl;
 }
 
-const std::pair<int, int> Koordinatenfinder::berechneEckeObenLinks() {
+void Koordinatenfinder::berechneEcken() {
     this->obereKante = this->berechneObereKante(1000, 40);
     this->linkeKante = this->berechneLinkeKante(100, 40);
     this->untereKante = this->berechneUntereKante(this->bild.height()-1, 40);
     this->rechteKante = this->berechneRechteKante(this->bild.width()-1, 40);
     
-    
-    
-    
-    
-    // TODO Referenzecke benutzen
-    
-    
-    
-    
-    
-    
-    return std::pair<int, int>(0,0);
+    if (this->referenzEcken[0].first < this->bild.width()/2) {
+        this->eckeObenLinks = this->referenzEcken[0];
+        this->eckeUntenLinks = this->referenzEcken[1];
+        this->eckeUntenRechts = this->referenzEcken[2];
+        this->eckeObenRechts = this->referenzEcken[3];
+    }
+    else {
+        this->eckeObenLinks = this->referenzEcken[1];
+        this->eckeUntenLinks = this->referenzEcken[2];
+        this->eckeUntenRechts = this->referenzEcken[3];
+        this->eckeObenRechts = this->referenzEcken[0];
+    }
 }
 
-const std::pair<int, int> Koordinatenfinder::berechneEckeObenRechts() {
-    
-    return std::pair<int, int>(0,0);
-}
-
-const std::pair<int, int> Koordinatenfinder::berechneEckeUntenLinks() {
-    
-    return std::pair<int, int>(0,0);
-}
-
-const std::pair<int, int> Koordinatenfinder::berechneEckeUntenRechts() {
-    const int x{this->eckeObenRechts.first + (this->eckeUntenLinks.first - this->eckeObenLinks.first)};
-    const int y{this->eckeUntenLinks.second + (this->eckeObenRechts.second - this->eckeObenLinks.second)};
-    return std::pair<int, int>(x, y);
-}
-
-const int Koordinatenfinder::berechneLinkeKante(const int startwertX, const int radius) const {
+const int Koordinatenfinder::berechneLinkeKante(const int startwertX, const int radius) {
     assert(this->obereKante != -1); // erst sollte die obere Kante berechnet worden sein
 //    cout << "Berechne Linke Kante: Radius = " << radius << ", Startwert = " << startwertX << " (" << startwertX << "-" << startwertX+2*radius+1 << ")" << endl;
     for (int x = startwertX + radius + 1; x <= this->bild.width()/2; x += 2*radius+1) {
         for (int y = this->obereKante + radius; y <= this->bild.height()-2-radius; y += 2*radius+1) {
             if (!this->istKomplettWeiss(x, y, radius)) {
                 if (radius == 0) {
+                    this->referenzEcken.push_back(pair<int, int>(x, y));
                     return x;
                 }
                 else {
@@ -88,13 +69,14 @@ const int Koordinatenfinder::berechneLinkeKante(const int startwertX, const int 
     return 0;
 }
 
-const int Koordinatenfinder::berechneRechteKante(const int startwertX, const int radius) const {
+const int Koordinatenfinder::berechneRechteKante(const int startwertX, const int radius) {
     assert(this->untereKante != -1); // erst sollte die untere Kante berechnet worden sein
 //    cout << "Berechne Rechte Kante: Radius = " << radius << ", Startwert = " << startwertX << " (" << startwertX << "-" << startwertX+2*radius+1 << ")" << endl;
     for (int x = startwertX - radius - 1; x >= this->linkeKante; x -= 2*radius+1) {
         for (int y = this->obereKante + radius; y <= this->untereKante; y += 2*radius+1) {
             if (!this->istKomplettWeiss(x, y, radius)) {
                 if (radius == 0) {
+                    this->referenzEcken.push_back(pair<int, int>(x, y));
                     return x;
                 }
                 else {
@@ -113,8 +95,7 @@ const int Koordinatenfinder::berechneObereKante(const int startwertY, const int 
         for (int x = radius + 1; x <= this->bild.width()-2-radius; x += 2*radius+1) {
             if (!this->istKomplettWeiss(x, y, radius)) {
                 if (radius == 0) {
-                    cout << "Referenzecke gefunden! x = " << x << ", y = " << y << endl;
-                    this->referenzEcke = pair<int, int>(x, y);
+                    this->referenzEcken.push_back(pair<int, int>(x, y));
                     return y;
                 }
                 else {
@@ -127,13 +108,14 @@ const int Koordinatenfinder::berechneObereKante(const int startwertY, const int 
     return 0;
 }
 
-const int Koordinatenfinder::berechneUntereKante(const int startwertY, const int radius) const {
+const int Koordinatenfinder::berechneUntereKante(const int startwertY, const int radius) {
     assert(this->linkeKante != -1); // erst sollte die linke Kante berechnet worden sein
     for (int y = startwertY - radius - 1; y >= this->obereKante; y -= 2*radius+1) {
 //        cout << "Berechne untere Kante: Radius = " << radius << ", y = [" << y-radius-1 << ", " << y+radius+1 << "]" << endl;
         for (int x = this->linkeKante+1; x <= this->bild.width()-2-radius; x += 2*radius+1) {
             if (!this->istKomplettWeiss(x, y, radius)) {
                 if (radius == 0) {
+                    this->referenzEcken.push_back(pair<int, int>(x, y));
                     return y;
                 }
                 else {

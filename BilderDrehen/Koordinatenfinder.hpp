@@ -2,6 +2,7 @@
 #define Koordinatenfinder_hpp
 
 #include <stdio.h>
+#include <vector>
 
 #define cimg_display 0
 #define cimg_use_jpeg
@@ -16,15 +17,12 @@ public:
 private:
     const cimg_library::CImg<unsigned char> bild;
     
-    const int berechneLinkeKante(const int startwertX, const int radius) const;
-    const int berechneRechteKante(const int startwertX, const int radius) const;
+    const int berechneLinkeKante(const int startwertX, const int radius);
+    const int berechneRechteKante(const int startwertX, const int radius);
     const int berechneObereKante(const int startwertY, const int radius);
-    const int berechneUntereKante(const int startwertY, const int radius) const;
+    const int berechneUntereKante(const int startwertY, const int radius);
     
-    const std::pair<int, int> berechneEckeObenLinks();
-    const std::pair<int, int> berechneEckeObenRechts();
-    const std::pair<int, int> berechneEckeUntenLinks();
-    const std::pair<int, int> berechneEckeUntenRechts();
+    void berechneEcken();
     
     const bool istWeiss(const int x, const int y) const;
     const bool istKomplettWeiss(const int x, const int y, const int radius) const;
@@ -41,7 +39,7 @@ private:
     std::pair<int, int> eckeUntenLinks;
     std::pair<int, int> eckeUntenRechts;
     
-    std::pair<int, int> referenzEcke;
+    std::vector<std::pair<int, int>> referenzEcken;
 };
 
 #endif /* Koordinatenfinder_hpp */
