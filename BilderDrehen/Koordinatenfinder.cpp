@@ -17,17 +17,16 @@ Koordinatenfinder::Koordinatenfinder(const string& dateiname) : bild(dateiname.c
     
     const auto tic{std::chrono::high_resolution_clock::now()};
     
-    //this->eckeObenLinks = this->berechneEckeObenLinks();
-    
-    this->obereKante = this->berechneObereKante(500, 40);
-//    this->linkeKante = this->berechneLinkeKante(0, 40);
+    this->eckeObenLinks = this->berechneEckeObenLinks();
     
     const auto toc{std::chrono::high_resolution_clock::now()};
     const duration<double, std::milli> ms{toc-tic};
     cout << "Zeit: " << ms.count() << endl;
-    
-//    cout << "Linke Kante: " << this->linkeKante << endl;
     cout << "Obere Kante: " << this->obereKante << endl;
+    cout << "Linke Kante: " << this->linkeKante << endl;
+    cout << "Untere Kante: " << this->untereKante << endl;
+    cout << "Rechte Kante: " << this->rechteKante << endl;
+    cout << "Referenzecke: (" << this->referenzEcke.first << ", " << this->referenzEcke.second << ")" << endl;
     
     this->eckeObenRechts = this->berechneEckeObenRechts();
     this->eckeUntenLinks = this->berechneEckeUntenLinks();
@@ -35,28 +34,20 @@ Koordinatenfinder::Koordinatenfinder(const string& dateiname) : bild(dateiname.c
 }
 
 const std::pair<int, int> Koordinatenfinder::berechneEckeObenLinks() {
-    this->obereKante = this->berechneObereKante(500, 40);
+    this->obereKante = this->berechneObereKante(1000, 40);
+    this->linkeKante = this->berechneLinkeKante(100, 40);
+    this->untereKante = this->berechneUntereKante(this->bild.height()-1, 40);
+    this->rechteKante = this->berechneRechteKante(this->bild.width()-1, 40);
     
     
     
     
     
+    // TODO Referenzecke benutzen
     
     
     
-    const int radius = 13;
-    const int max = bild.height()/2;
-    int obereGrenze{100};
-    const int x{this->bild.width() / 2};
-    while (this->istKomplettWeiss(x, obereGrenze, radius)) {
-        cout << "Probiere y = " << obereGrenze << " als obere Grenze" << endl;
-        obereGrenze += 2 * radius + 1;
-        if (obereGrenze > max) {
-            cout << "Fehler: obere Grenze wurde nicht gefunden; berechneEckeObenLinks() scheiterte" << endl;
-            return std::pair<int, int>(0,0);
-        }
-    }
-    cout << "Ergebnis: die obere Grenze liegt ca. bei y = " << obereGrenze << endl;
+    
     
     
     return std::pair<int, int>(0,0);
@@ -78,13 +69,13 @@ const std::pair<int, int> Koordinatenfinder::berechneEckeUntenRechts() {
     return std::pair<int, int>(x, y);
 }
 
-const int Koordinatenfinder::berechneLinkeKante(const int startwert, const int radius) const {
-    cout << "Berechne Linke Kante: Radius = " << radius << ", Startwert = " << startwert << " (" << startwert << "-" << startwert+2*radius+1 << ")" << endl;
-    for (int x = startwert + radius + 1; x <= this->bild.width()/2; x += 2*radius+1) {
-        for (int y = radius + 1; y <= this->bild.height()-2-radius; y += 2*radius+1) {
+const int Koordinatenfinder::berechneLinkeKante(const int startwertX, const int radius) const {
+    assert(this->obereKante != -1); // erst sollte die obere Kante berechnet worden sein
+//    cout << "Berechne Linke Kante: Radius = " << radius << ", Startwert = " << startwertX << " (" << startwertX << "-" << startwertX+2*radius+1 << ")" << endl;
+    for (int x = startwertX + radius + 1; x <= this->bild.width()/2; x += 2*radius+1) {
+        for (int y = this->obereKante + radius; y <= this->bild.height()-2-radius; y += 2*radius+1) {
             if (!this->istKomplettWeiss(x, y, radius)) {
                 if (radius == 0) {
-                    cout << "Kante gefunden! x = " << x << ", y = " << y << endl;
                     return x;
                 }
                 else {
@@ -97,17 +88,56 @@ const int Koordinatenfinder::berechneLinkeKante(const int startwert, const int r
     return 0;
 }
 
-const int Koordinatenfinder::berechneObereKante(const int startwert, const int radius) const {
-    for (int y = startwert + radius + 1; y <= this->bild.height()-2-radius; y += 2*radius+1) {
-        cout << "Berechne Obere Kante: Radius = " << radius << ", y = [" << y-radius-1 << ", " << y+radius+1 << "]" << endl;
+const int Koordinatenfinder::berechneRechteKante(const int startwertX, const int radius) const {
+    assert(this->untereKante != -1); // erst sollte die untere Kante berechnet worden sein
+//    cout << "Berechne Rechte Kante: Radius = " << radius << ", Startwert = " << startwertX << " (" << startwertX << "-" << startwertX+2*radius+1 << ")" << endl;
+    for (int x = startwertX - radius - 1; x >= this->linkeKante; x -= 2*radius+1) {
+        for (int y = this->obereKante + radius; y <= this->untereKante; y += 2*radius+1) {
+            if (!this->istKomplettWeiss(x, y, radius)) {
+                if (radius == 0) {
+                    return x;
+                }
+                else {
+                    return this->berechneRechteKante(x + (3*radius + 1), (radius-1)/3);
+                }
+            }
+        }
+    }
+    cout << "Linke Kante wurde nicht gefunden" << endl;
+    return 0;
+}
+
+const int Koordinatenfinder::berechneObereKante(const int startwertY, const int radius) {
+    for (int y = startwertY + radius + 1; y <= this->bild.height()-2-radius; y += 2*radius+1) {
+//        cout << "Berechne Obere Kante: Radius = " << radius << ", y = [" << y-radius-1 << ", " << y+radius+1 << "]" << endl;
         for (int x = radius + 1; x <= this->bild.width()-2-radius; x += 2*radius+1) {
             if (!this->istKomplettWeiss(x, y, radius)) {
                 if (radius == 0) {
-                    cout << "Kante gefunden! x = " << x << ", y = " << y << endl;
+                    cout << "Referenzecke gefunden! x = " << x << ", y = " << y << endl;
+                    this->referenzEcke = pair<int, int>(x, y);
                     return y;
                 }
                 else {
                     return this->berechneObereKante(y - (3*radius + 1), (radius-1)/3);
+                }
+            }
+        }
+    }
+    cout << "Obere Kante wurde nicht gefunden" << endl;
+    return 0;
+}
+
+const int Koordinatenfinder::berechneUntereKante(const int startwertY, const int radius) const {
+    assert(this->linkeKante != -1); // erst sollte die linke Kante berechnet worden sein
+    for (int y = startwertY - radius - 1; y >= this->obereKante; y -= 2*radius+1) {
+//        cout << "Berechne untere Kante: Radius = " << radius << ", y = [" << y-radius-1 << ", " << y+radius+1 << "]" << endl;
+        for (int x = this->linkeKante+1; x <= this->bild.width()-2-radius; x += 2*radius+1) {
+            if (!this->istKomplettWeiss(x, y, radius)) {
+                if (radius == 0) {
+                    return y;
+                }
+                else {
+                    return this->berechneUntereKante(y + (3*radius + 1), (radius-1)/3);
                 }
             }
         }

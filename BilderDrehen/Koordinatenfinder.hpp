@@ -16,10 +16,10 @@ public:
 private:
     const cimg_library::CImg<unsigned char> bild;
     
-    const int berechneLinkeKante(const int startwert, const int radius) const;
-    const int berechneRechteKante(const int startwert, const int radius) const;
-    const int berechneObereKante(const int startwert, const int radius) const;
-    const int berechneUntereKante(const int startwert, const int radius) const;
+    const int berechneLinkeKante(const int startwertX, const int radius) const;
+    const int berechneRechteKante(const int startwertX, const int radius) const;
+    const int berechneObereKante(const int startwertY, const int radius);
+    const int berechneUntereKante(const int startwertY, const int radius) const;
     
     const std::pair<int, int> berechneEckeObenLinks();
     const std::pair<int, int> berechneEckeObenRechts();
@@ -31,15 +31,17 @@ private:
     
     const Farbe getPixel(const int x, const int y) const;
     
-    int linkeKante;
-    int rechteKante;
-    int obereKante;
-    int untereKante;
+    int linkeKante = -1;
+    int rechteKante = -1;
+    int obereKante = -1;
+    int untereKante = -1;
     
     std::pair<int, int> eckeObenLinks;
     std::pair<int, int> eckeObenRechts;
     std::pair<int, int> eckeUntenLinks;
     std::pair<int, int> eckeUntenRechts;
+    
+    std::pair<int, int> referenzEcke;
 };
 
 #endif /* Koordinatenfinder_hpp */
