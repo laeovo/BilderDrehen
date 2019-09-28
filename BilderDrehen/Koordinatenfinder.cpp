@@ -1,3 +1,4 @@
+#include <chrono>
 #include <iostream>
 #include <string>
 
@@ -5,6 +6,7 @@
 
 #include "Koordinatenfinder.hpp"
 
+using namespace std::chrono;
 using namespace cimg_library;
 using namespace std;
 
@@ -12,13 +14,36 @@ Koordinatenfinder::Koordinatenfinder(const string& dateiname) : bild(dateiname.c
     cout << "Koordinatenfinder::Konstruktor. Dateiname ist " << dateiname << endl;
     assert(bild.width() == 2480);
     assert(bild.height() == 3508);
-    this->eckeObenLinks = this->berechneEckeObenLinks();
+    
+    const auto tic{std::chrono::high_resolution_clock::now()};
+    
+    //this->eckeObenLinks = this->berechneEckeObenLinks();
+    
+    this->obereKante = this->berechneObereKante(500, 40);
+//    this->linkeKante = this->berechneLinkeKante(0, 40);
+    
+    const auto toc{std::chrono::high_resolution_clock::now()};
+    const duration<double, std::milli> ms{toc-tic};
+    cout << "Zeit: " << ms.count() << endl;
+    
+//    cout << "Linke Kante: " << this->linkeKante << endl;
+    cout << "Obere Kante: " << this->obereKante << endl;
+    
     this->eckeObenRechts = this->berechneEckeObenRechts();
     this->eckeUntenLinks = this->berechneEckeUntenLinks();
     this->eckeUntenRechts = this->berechneEckeUntenRechts();
 }
 
 const std::pair<int, int> Koordinatenfinder::berechneEckeObenLinks() {
+    this->obereKante = this->berechneObereKante(500, 40);
+    
+    
+    
+    
+    
+    
+    
+    
     const int radius = 13;
     const int max = bild.height()/2;
     int obereGrenze{100};
@@ -51,6 +76,44 @@ const std::pair<int, int> Koordinatenfinder::berechneEckeUntenRechts() {
     const int x{this->eckeObenRechts.first + (this->eckeUntenLinks.first - this->eckeObenLinks.first)};
     const int y{this->eckeUntenLinks.second + (this->eckeObenRechts.second - this->eckeObenLinks.second)};
     return std::pair<int, int>(x, y);
+}
+
+const int Koordinatenfinder::berechneLinkeKante(const int startwert, const int radius) const {
+    cout << "Berechne Linke Kante: Radius = " << radius << ", Startwert = " << startwert << " (" << startwert << "-" << startwert+2*radius+1 << ")" << endl;
+    for (int x = startwert + radius + 1; x <= this->bild.width()/2; x += 2*radius+1) {
+        for (int y = radius + 1; y <= this->bild.height()-2-radius; y += 2*radius+1) {
+            if (!this->istKomplettWeiss(x, y, radius)) {
+                if (radius == 0) {
+                    cout << "Kante gefunden! x = " << x << ", y = " << y << endl;
+                    return x;
+                }
+                else {
+                    return this->berechneLinkeKante(x - (3*radius + 1), (radius-1)/3);
+                }
+            }
+        }
+    }
+    cout << "Linke Kante wurde nicht gefunden" << endl;
+    return 0;
+}
+
+const int Koordinatenfinder::berechneObereKante(const int startwert, const int radius) const {
+    for (int y = startwert + radius + 1; y <= this->bild.height()-2-radius; y += 2*radius+1) {
+        cout << "Berechne Obere Kante: Radius = " << radius << ", y = [" << y-radius-1 << ", " << y+radius+1 << "]" << endl;
+        for (int x = radius + 1; x <= this->bild.width()-2-radius; x += 2*radius+1) {
+            if (!this->istKomplettWeiss(x, y, radius)) {
+                if (radius == 0) {
+                    cout << "Kante gefunden! x = " << x << ", y = " << y << endl;
+                    return y;
+                }
+                else {
+                    return this->berechneObereKante(y - (3*radius + 1), (radius-1)/3);
+                }
+            }
+        }
+    }
+    cout << "Obere Kante wurde nicht gefunden" << endl;
+    return 0;
 }
 
 const bool Koordinatenfinder::istWeiss(const int x, const int y) const {

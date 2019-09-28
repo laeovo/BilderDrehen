@@ -16,6 +16,11 @@ public:
 private:
     const cimg_library::CImg<unsigned char> bild;
     
+    const int berechneLinkeKante(const int startwert, const int radius) const;
+    const int berechneRechteKante(const int startwert, const int radius) const;
+    const int berechneObereKante(const int startwert, const int radius) const;
+    const int berechneUntereKante(const int startwert, const int radius) const;
+    
     const std::pair<int, int> berechneEckeObenLinks();
     const std::pair<int, int> berechneEckeObenRechts();
     const std::pair<int, int> berechneEckeUntenLinks();
@@ -25,6 +30,11 @@ private:
     const bool istKomplettWeiss(const int x, const int y, const int radius) const;
     
     const Farbe getPixel(const int x, const int y) const;
+    
+    int linkeKante;
+    int rechteKante;
+    int obereKante;
+    int untereKante;
     
     std::pair<int, int> eckeObenLinks;
     std::pair<int, int> eckeObenRechts;
