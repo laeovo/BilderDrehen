@@ -1,4 +1,5 @@
 #include <chrono>
+#include <cmath>
 #include <iostream>
 #include <string>
 
@@ -10,23 +11,63 @@ using namespace std::chrono;
 using namespace cimg_library;
 using namespace std;
 
-Koordinatenfinder::Koordinatenfinder(const string& dateiname) : bild(dateiname.c_str()) {
-    cout << "Koordinatenfinder::Konstruktor. Dateiname ist " << dateiname << endl;
+Koordinatenfinder::Koordinatenfinder(const string& dateiname) : bild(dateiname.c_str()), dateiname(dateiname.substr(0,dateiname.size()-5)) {
+//    cout << "Koordinatenfinder::Konstruktor. Dateiname ist " << this->dateiname << ".jpeg" << endl;
     assert(bild.width() == 2480);
     assert(bild.height() == 3508);
     
-    const auto tic{std::chrono::high_resolution_clock::now()};
+//    const auto tic{std::chrono::high_resolution_clock::now()};
     
     this->berechneEcken();
     
-    const auto toc{std::chrono::high_resolution_clock::now()};
-    const duration<double, std::milli> ms{toc-tic};
-    cout << "Zeit: " << ms.count() << endl;
+//    const auto toc{std::chrono::high_resolution_clock::now()};
+//    const duration<double, std::milli> ms{toc-tic};
+//    cout << "Zeit: " << ms.count() << endl;
     
-    cout << "Ecke oben links: (" << this->eckeObenLinks.first << ", " << this->eckeObenLinks.second << ")" << endl;
-    cout << "Ecke unten links: (" << this->eckeUntenLinks.first << ", " << this->eckeUntenLinks.second << ")" << endl;
-    cout << "Ecke unten rechts: (" << this->eckeUntenRechts.first << ", " << this->eckeUntenRechts.second << ")" << endl;
-    cout << "Ecke oben rechts: (" << this->eckeObenRechts.first << ", " << this->eckeObenRechts.second << ")" << endl;
+//    cout << "Ecke oben links: (" << this->eckeObenLinks.first << ", " << this->eckeObenLinks.second << ")" << endl;
+//    cout << "Ecke unten links: (" << this->eckeUntenLinks.first << ", " << this->eckeUntenLinks.second << ")" << endl;
+//    cout << "Ecke unten rechts: (" << this->eckeUntenRechts.first << ", " << this->eckeUntenRechts.second << ")" << endl;
+//    cout << "Ecke oben rechts: (" << this->eckeObenRechts.first << ", " << this->eckeObenRechts.second << ")" << endl;
+}
+
+void Koordinatenfinder::fertigStellen() {
+//    cout << "Fertig stellen..." << endl;
+    this->bildDrehen();
+    this->bildZuschneiden();
+    this->bildSichern();
+}
+
+const double Koordinatenfinder::getWinkel() const {
+//    cout << "getWinkel()" << endl;
+    const int y{-(this->eckeObenRechts.second - this->eckeObenLinks.second)};
+    const int x{this->eckeObenRechts.first - this->eckeObenLinks.first};
+    const double tangens{(y+0.)/(x+0.)};
+    return atan(tangens) * 180 / M_PI;
+}
+
+const pair<int, int> Koordinatenfinder::getEckeObenLinks() const {
+    return this->eckeObenLinks;
+}
+
+void Koordinatenfinder::bildDrehen() {
+    const float winkel{(float)this->getWinkel()};
+//    cout << "Drehen..." << endl;
+    this->bild = this->bild.get_rotate(winkel, (float)(this->getEckeObenLinks().first), (float)(this->getEckeObenLinks().second), 1);
+}
+
+void Koordinatenfinder::bildZuschneiden() {
+    this->berechneAbmessungen();
+//    cout << "Zuschneiden..." << endl;
+//    cout << "Breite = " << this->width << endl;
+//    cout << "Höhe = " << this->height << endl;
+    this->bild = this->bild.get_crop(this->getEckeObenLinks().first, this->getEckeObenLinks().second, 0, 0, this->getEckeObenLinks().first+this->width, this->getEckeObenLinks().second+this->height, 0, 2);
+}
+
+void Koordinatenfinder::bildSichern() {
+//    cout << "Sichern..." << endl;
+    string neuerDateiname{this->dateiname};
+    neuerDateiname.append("_export.jpg");
+    this->bild.save_jpeg(neuerDateiname.c_str(), 75);
 }
 
 void Koordinatenfinder::berechneEcken() {
@@ -47,6 +88,16 @@ void Koordinatenfinder::berechneEcken() {
         this->eckeUntenRechts = this->referenzEcken[3];
         this->eckeObenRechts = this->referenzEcken[0];
     }
+}
+
+void Koordinatenfinder::berechneAbmessungen() {
+//    cout << "Berechne Abmessungen..." << endl;
+    const int y1{(this->eckeObenRechts.second - this->eckeObenLinks.second)};
+    const int x1{this->eckeObenRechts.first - this->eckeObenLinks.first};
+    this->width = sqrt(x1*x1 + y1*y1);
+    const int y2{(this->eckeUntenLinks.second - this->eckeObenLinks.second)};
+    const int x2{this->eckeUntenLinks.first - this->eckeObenLinks.first};
+    this->height = sqrt(x2*x2 + y2*y2);
 }
 
 const int Koordinatenfinder::berechneLinkeKante(const int startwertX, const int radius) {
