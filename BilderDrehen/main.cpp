@@ -5,7 +5,12 @@
 using namespace std;
 
 int main(int argc, const char * argv[]) {
-    Koordinatenfinder finder{"Test.jpeg"};
-    finder.fertigStellen();
+    for (int i = 9; i <= 14; ++i) {
+        string dateiname = "Scan ";
+        dateiname.append(to_string(i));
+        dateiname.append(".jpeg");
+        Koordinatenfinder finder{dateiname};
+        finder.fertigStellen();
+    }
     return 0;
 }

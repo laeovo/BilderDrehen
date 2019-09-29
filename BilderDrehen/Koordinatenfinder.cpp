@@ -38,7 +38,6 @@ void Koordinatenfinder::fertigStellen() {
 }
 
 const double Koordinatenfinder::getWinkel() const {
-//    cout << "getWinkel()" << endl;
     const int y{-(this->eckeObenRechts.second - this->eckeObenLinks.second)};
     const int x{this->eckeObenRechts.first - this->eckeObenLinks.first};
     const double tangens{(y+0.)/(x+0.)};
@@ -51,6 +50,7 @@ const pair<int, int> Koordinatenfinder::getEckeObenLinks() const {
 
 void Koordinatenfinder::bildDrehen() {
     const float winkel{(float)this->getWinkel()};
+    cout << "Winkel = " << winkel << endl;
 //    cout << "Drehen..." << endl;
     this->bild = this->bild.get_rotate(winkel, (float)(this->getEckeObenLinks().first), (float)(this->getEckeObenLinks().second), 1);
 }
